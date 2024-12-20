@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config()
 
 const authenticateToken = (req, res, next) => {
-    const token = req.header('Authorization');
+    const token = req.header('Authorization')
 
     if (!token) {
       req.isAuthenticated = false;
@@ -25,7 +25,7 @@ const isAuthenticated = (req, res, next) => {
       next();
   } else {
       return res.status(401).json({ 
-          message: "You need to log in to generate a quotation.", 
+          message: "You need to provide some basic information.", 
           redirectTo: "/register-or-login" 
       });
   }

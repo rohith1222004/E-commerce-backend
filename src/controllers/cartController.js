@@ -35,7 +35,9 @@ const addToCart = async(req, res) => {
         if (!req.session.cart) {
             req.session.cart = { items: [productId, quantity] };
         }
-
+        console.log('====================================');
+        console.log(req.session);
+        console.log('====================================');
         const cart = req.session.cart;
         console.log('====================================');
         console.log("Items added to cart",cart);
@@ -113,9 +115,39 @@ const clearCart = async(req, res) => {
     return res.send("successfully cleared cart")
 }
 
+const migrateCart = async (req, res, next) => {
+    if (req.isAuthenticated && req.session.cart) {
+        const userId = req.user.userId;
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const sessionCart = req.session.cart.items;
+        sessionCart.forEach(sessionItem => {
+            const existingItem = user.cart.find(
+                item => item.productId.toString() === sessionItem.productId
+            );
+
+            if (existingItem) {
+                existingItem.quantity += sessionItem.quantity;
+            } else {
+                user.cart.push(sessionItem);
+            }
+        });
+
+        await user.save();
+        req.session.cart = null;
+    }
+    next();
+};
+
+
 module.exports={
     getItems,
     addToCart,
     removeFromCart,
-    clearCart
+    clearCart,
+    migrateCart
 }

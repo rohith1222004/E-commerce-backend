@@ -4,7 +4,7 @@ const Product = require('../models/productSchema');
 const addCart = async(userId, productId, quantity) => {
     const product = await Product.findById(productId);
     if (!product) {
-        return res.status(404).json({ message: 'Product not found' });
+        return {message: 'Product not found'} ;
     }
     
     const user = await User.findById(userId);

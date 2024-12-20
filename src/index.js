@@ -16,13 +16,20 @@ const quotationRouter = require("./routes/quotationRoutes");
 const { isAuthenticated } = require('./middleware/authMiddleware');
 
 connectToDatabase();
-app.use(cors())
+app.use(cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+}))
 
 app.use(session({
     secret: 'your-secret-key',
     resave: false,
     saveUninitialized: true,
-    cookie: { maxAge: 1000 * 60 * 60 * 24 } 
+    cookie: {
+        httpOnly: true,
+        secure: false,
+        maxAge: 86400000 
+    }
 }));
 
 app.get('/', (req, res) => {
@@ -33,7 +40,7 @@ app.use('/auth',authRouter)
 app.use('/users',userRouter)
 app.use('/product',productRouter)
 app.use('/cart',authenticateToken,cartRouter)
-app.use('/quotation',authenticateToken,isAuthenticated,quotationRouter)
+app.use('/quotation',authenticateToken,quotationRouter)
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}/`);
